@@ -8,11 +8,17 @@
 ################################### CST #####################################
 # Table morse
 
-morse_dict = {"a": "1200", "b": "2111", "c": "2121", "d": "2110", "e": "1000", "f": "1121",
-			  "g": "2210", "h": "1111", "i": "1100", "j": "1222", "k": "2120", "l": "1211",
-			  "m": "2200", "n": "2100", "o": "2220", "p": "1221", "q": "2212", "r": "1210",
-			  "s": "1110", "t": "2000", "u": "1120", "v": "1112", "w": "1220", "x": "2112",
-			  "y": "2122", "z": "2211", " ": "0000"}
+morse_dict = {"a": "120000", "b": "211100", "c": "212100", "d": "211000", "e": "100000",
+			  "f": "112100", "g": "221000", "h": "111100", "i": "110000", "j": "122200",
+			  "k": "212000", "l": "121100", "m": "220000", "n": "210000", "o": "222000",
+			  "p": "122100", "q": "221200", "r": "121000", "s": "111000", "t": "200000",
+			  "u": "112000", "v": "111200", "w": "122000", "x": "211200", "y": "212200",
+			  "z": "221100", "à": "122120", "ä": "121200", "é": "112110", "ñ": "221220",
+			  "ö": "222100", "ü": "112200", "1": "122220", "2": "112220", "3": "111220",
+			  "4": "111120", "5": "111110", "6": "211110", "7": "221110", "8": "222110",
+			  "9": "222210", "0": "222220", ",": "221122", ".": "121212", "?": "112211",
+			  '"': "121121", ":": "222111", "'": "122221", "-": "211112", "/": "211210",
+			  "(": "212210", ")": "212212", " ": "000000"}
 
 ################################### FONCTION ################################
 # Recupération entrée
@@ -29,7 +35,7 @@ def splitAndConvert(text):
 
 	return words
 
-# Conversion alpha->morse
+# Conversion alpha->morse (6bits : a-z + 0-9 + àù... + (,?;.)... )
 def strToMorse(words):
 	morse_words = []
 
@@ -55,9 +61,10 @@ def morseToBin(morse_words):
 
 		while nMorse < len(word)-1:
 
-			for i in range(4):
+			for i in range(6):
 				nMorse = i+rank
 				morse = word[nMorse]
+				
 				if morse == "0":
 					bin_word += "00"
 				elif morse == "1":
@@ -65,7 +72,7 @@ def morseToBin(morse_words):
 				else: #2
 					bin_word += "11"
 
-			rank += 4
+			rank += 6
 		bin_words.append(bin_word)
 
 	return bin_words
@@ -81,19 +88,19 @@ def binToHexa(bin_words):
 		while nHex < len(word)-1:
 			tmp_hex = ""
 
-			for i in range(8):
+			for i in range(12):
 				try:
 					nHex = rank+i
 					tmp_hex += word[nHex]
 				except IndexError:
 					pass
 
-			rank += 8
+			rank += 12
 			hex_number = hex(int(tmp_hex, 2)).replace("0x", "")
 
-			while len(hex_number) < 2:
+			while len(hex_number) < 3:
 				hex_number += "0"
-				
+
 			hex_word += hex_number	
 
 		hex_words.append(hex_word)
@@ -111,11 +118,11 @@ def hexToAscii(hex_words):
 		while nHex < len(word)-1:
 			tmp = ""
 
-			for i in range(2):
+			for i in range(3):
 				nHex = i+rank
 				tmp += word[nHex]
 
-			rank += 2
+			rank += 3
 			char = chr(int(tmp, base=16)+150) # Ajout de la constante 150 pour éviter les contrôles qui ne sont pas détectables
 			ascii_word += char
 
