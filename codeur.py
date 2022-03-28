@@ -2,8 +2,13 @@
 #																			  #
 # Cryptage de textes alphabétiques uniquement.								  #
 # Combinaison des conversions txt -> morse -> binaire -> hexadécimal -> ascii #
-#																			
+#																			  #
+# 
+#
 ############################################################################### 
+
+from random import randrange
+import re
 
 ################################### CST #####################################
 # Table morse
@@ -130,10 +135,64 @@ def hexToAscii(hex_words):
 
 	return ascii_words
 
+def cryptIt(raw):
+	new_morse_words = []
+
+	for word in raw:
+
+		# Randomisation bits 1/2/3/4/5
+		# 1 échange entre valeurs 0 {x,y,z}/ 1 {z,x,y} / 2 {y,z,x}
+		# 2 Décalage d'indice
+		# 3 Détermine la cible de l'échange x du 1er bit
+		# 4 Idem pour y
+		# 5 Idem pour z
+
+		bit1 = randrange(0,3) # 0, 1, 2
+		bit2 = randrange(0,3)
+		bit3 = randrange(0,3)
+		bit4 = randrange(0,3)
+		bit5 = randrange(0,3)
+		bit6 = 0 # Padding (%6)
+
+		while bit3 == bit1: # Evite la redondance dans l'échange de valeurs
+			bit3 = randrange(0,3)
+		while bit4 == bit3:
+			bit4 = randrange(0,3)
+		while bit5 == bit4 or bit5 == bit3:
+			bit5 = randrange(0,3)
+
+		if bit1 == 0:
+			dsts_change = [bit3, bit4, bit5]
+		elif bit1 == 1:
+			dsts_change = [bit5, bit3, bit4]
+		else: # 2
+			dsts_change = [bit4, bit5, bit3]
+
+		new_word = ""
+		for char in word:
+			new_word += str(dsts_change[int(char)])
+
+		if bit2 == 0:
+			pass
+		elif bit2 == 1:
+			lastChar = new_word[len(new_word)-1]
+			new_word = lastChar+new_word
+			new_word = new_word[:-1]
+		else: # 2
+			firstChar = new_word[0]
+			new_word = new_word+firstChar
+			new_word = new_word[1:]
+
+		new_word = str(bit1)+str(bit2)+str(bit3)+str(bit4)+str(bit5)+str(bit6)+new_word
+		new_morse_words.append(new_word)
+
+	return new_morse_words, [bit1, bit2, bit3, bit4, bit5, bit6]#, bit7, bit8]
+
+
 ################################### MAIN ####################################
 # Récupération de l'entrée et découpage en séquence de mot
 
-text = input("Texte à encoder\n/!\\ PAS d'UTF-8 : Pas d'accents, de ponctuaction ou de caractères spéciaux /!\\\n: ") + " "
+text = input("Texte à encoder\n/!\\ Peu de caractères spéciaux sont pris en charge /!\\\n: ") + " "
 words = splitAndConvert(text)
 
 for word in words:
@@ -143,6 +202,12 @@ print("\n")
 # Conversion en morse
 
 morse_words = strToMorse(words)
+
+for word in morse_words:
+	print(str(len(word))+" "+word)
+print("\n")
+
+morse_words, encryptionBits = cryptIt(morse_words)
 
 for word in morse_words:
 	print(str(len(word))+" "+word)

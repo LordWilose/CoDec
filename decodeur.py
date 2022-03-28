@@ -135,6 +135,54 @@ def morseToAscii(morse_words):
 
 	return words
 
+def decodeMorse(morse_words):
+	new_morse_words = []
+
+	for word in morse_words:
+		new_word = word
+
+		# Récupération des bits de cryptages
+		# 1 échange entre valeurs 0 {x,y,z}/ 1 {z,x,y} / 2 {y,z,x}
+		# 2 Décalage d'indice
+		# 3 Détermine la cible de l'échange x du 1er bit
+		# 4 Idem pour y
+		# 5 Idem pour z
+
+		bit1, bit2, bit3, bit4, bit5 = new_word[0], new_word[1], new_word[2], new_word[3], new_word[4]
+		new_word = new_word[6:] # Padding %6
+
+		# Récupération du décalage
+		if bit2 == "0":
+			pass
+		elif bit2 == "1":
+			firstChar = new_word[0]
+			new_word = new_word+firstChar
+			new_word = new_word[1:]
+		else: # 2
+			lastChar = new_word[len(new_word)-1]
+			new_word = lastChar+new_word
+			new_word = new_word[:-1]
+
+		# Récupération de l'échange de valeurs
+		if bit1 == "0":
+			dsts_change = [0, 1, 2]
+		elif bit1 == "1":
+			dsts_change = [2, 0, 1]
+		else: # 2
+			dsts_change = [1, 2, 0]
+
+		tmp = ""
+		for char in new_word:
+			if dsts_change.index(int(char)) == 0:
+				tmp += str(dsts_change[int(bit3)])
+			elif dsts_change.index(int(char)) == 1:
+				tmp += str(dsts_change[int(bit4)])
+			else: # 2
+				tmp += str(dsts_change[int(bit5)])
+		new_word = tmp
+
+	new_morse_words.append(new_word)
+
 ################################### MAIN ####################################
 # Récupération du texte crypté
 
@@ -170,9 +218,16 @@ for word in morse_words:
 	print(str(len(word))+" "+word)
 print("\n")
 
+new_morse_words = decodeMorse(morse_words)
+
+
+for word in new_morse_words:
+	print(str(len(word))+" "+word)
+print("\n")
+
 # Conversion morse -> texte
 
-words = morseToAscii(morse_words)
+words = morseToAscii(new_morse_words)
 
 for word in words:
 	print(str(len(word))+" "+word)
