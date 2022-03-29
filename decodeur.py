@@ -48,7 +48,7 @@ def cryptedToHexa(crypted):
 				hexa = hex(ord(char)-150).replace("0x", "")
 
 				while len(hexa) < 3:
-					hexa += "0"
+					hexa = "0"+hexa
 				hexa_word += hexa
 
 		hexa_words.append(hexa_word)
@@ -73,7 +73,7 @@ def hexaToBin(hexa_words):
 			tmp_bin = bin(int(tmp_hexa, base=16)).replace("0b", "")
 
 			while len(tmp_bin) < 12: # Correction du manque possible de digits
-				tmp_bin += "0"
+				tmp_bin = "0"+tmp_bin
 
 			bin_word += tmp_bin
 
@@ -149,7 +149,7 @@ def decodeMorse(morse_words):
 		# 5 Idem pour z
 
 		bit1, bit2, bit3, bit4, bit5 = new_word[0], new_word[1], new_word[2], new_word[3], new_word[4]
-		new_word = new_word[6:] # Padding %6
+		new_word = new_word[6:] # Padding 6 bits
 
 		# Récupération du décalage
 		if bit2 == "0":
@@ -181,7 +181,9 @@ def decodeMorse(morse_words):
 				tmp += str(dsts_change[int(bit5)])
 		new_word = tmp
 
-	new_morse_words.append(new_word)
+		new_morse_words.append(new_word)
+
+	return new_morse_words
 
 ################################### MAIN ####################################
 # Récupération du texte crypté

@@ -104,7 +104,7 @@ def binToHexa(bin_words):
 			hex_number = hex(int(tmp_hex, 2)).replace("0x", "")
 
 			while len(hex_number) < 3:
-				hex_number += "0"
+				hex_number = "0"+hex_number
 
 			hex_word += hex_number	
 
