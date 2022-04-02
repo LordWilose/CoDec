@@ -26,6 +26,9 @@ def getCrypted(crypted):
 	words = []
 	word = ""
 
+	if crypted[-1] != " ":
+		crypted += " "
+
 	for char in crypted:
 		word += char
 		if char == " ":
@@ -149,7 +152,10 @@ def decodeMorse(morse_words):
 		# 5 Idem pour z
 
 		bit1, bit2, bit3, bit4, bit5 = new_word[0], new_word[1], new_word[2], new_word[3], new_word[4]
+		# print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, 0]))
+
 		new_word = new_word[6:] # Padding 6 bits
+		# print("Start : "+new_word)
 
 		# Récupération du décalage
 		if bit2 == "0":
@@ -163,23 +169,29 @@ def decodeMorse(morse_words):
 			new_word = lastChar+new_word
 			new_word = new_word[:-1]
 
+		# print("Decalage : "+new_word)
+
 		# Récupération de l'échange de valeurs
 		if bit1 == "0":
-			dsts_change = [0, 1, 2]
+			dsts_change = [bit3, bit4, bit5]
 		elif bit1 == "1":
-			dsts_change = [2, 0, 1]
+			dsts_change = [bit5, bit3, bit4]
 		else: # 2
-			dsts_change = [1, 2, 0]
+			dsts_change = [bit4, bit5, bit3]
+
+		# print("Dsts : "+str(dsts_change))
 
 		tmp = ""
 		for char in new_word:
-			if dsts_change.index(int(char)) == 0:
-				tmp += str(dsts_change[int(bit3)])
-			elif dsts_change.index(int(char)) == 1:
-				tmp += str(dsts_change[int(bit4)])
-			else: # 2
-				tmp += str(dsts_change[int(bit5)])
+			if char == bit3:
+				tmp += str(dsts_change.index(bit3))
+			elif char == bit4:
+				tmp += str(dsts_change.index(bit4))
+			else: # bit5
+				tmp += str(dsts_change.index(bit5))
 		new_word = tmp
+
+		# print("Change : "+new_word+"\n\n")
 
 		new_morse_words.append(new_word)
 

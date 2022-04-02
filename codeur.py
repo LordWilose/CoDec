@@ -3,12 +3,11 @@
 # Cryptage de textes alphabétiques uniquement.								  #
 # Combinaison des conversions txt -> morse -> binaire -> hexadécimal -> ascii #
 #																			  #
-# 
-#
+# Chiffrement aléatoire sur 6bits											  #
+#																			  #
 ############################################################################### 
 
 from random import randrange
-import re
 
 ################################### CST #####################################
 # Table morse
@@ -154,12 +153,14 @@ def cryptIt(raw):
 		bit5 = randrange(0,3)
 		bit6 = 0 # Padding (%6)
 
-		while bit3 == bit1: # Evite la redondance dans l'échange de valeurs
+		while bit3 == bit4 or bit3 == bit5 or bit4 == bit5:
+			# Evite la redondance dans l'échange de valeurs
 			bit3 = randrange(0,3)
-		while bit4 == bit3:
 			bit4 = randrange(0,3)
-		while bit5 == bit4 or bit5 == bit3:
 			bit5 = randrange(0,3)
+
+		# print("Start : "+word)
+		# print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, bit6]))
 
 		if bit1 == 0:
 			dsts_change = [bit3, bit4, bit5]
@@ -168,9 +169,13 @@ def cryptIt(raw):
 		else: # 2
 			dsts_change = [bit4, bit5, bit3]
 
+		# print("Dsts : "+str(dsts_change))
+
 		new_word = ""
 		for char in word:
 			new_word += str(dsts_change[int(char)])
+
+		# print("Change : "+new_word)
 
 		if bit2 == 0:
 			pass
@@ -182,6 +187,8 @@ def cryptIt(raw):
 			firstChar = new_word[0]
 			new_word = new_word+firstChar
 			new_word = new_word[1:]
+
+		# print("Decalage : "+new_word+"\n\n")
 
 		new_word = str(bit1)+str(bit2)+str(bit3)+str(bit4)+str(bit5)+str(bit6)+new_word
 		new_morse_words.append(new_word)
