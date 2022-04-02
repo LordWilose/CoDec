@@ -173,11 +173,11 @@ def decodeMorse(morse_words):
 
 		# Récupération de l'échange de valeurs
 		if bit1 == "0":
-			dsts_change = [bit3, bit4, bit5]
+			dsts_change = [bit3, bit4, bit5] # bit3 -> 0, bit4 -> 1, bit5 -> 2
 		elif bit1 == "1":
-			dsts_change = [bit5, bit3, bit4]
+			dsts_change = [bit5, bit3, bit4] # bit3 -> 1, bit4 -> 2, bit5 -> 0
 		else: # 2
-			dsts_change = [bit4, bit5, bit3]
+			dsts_change = [bit4, bit5, bit3] # bit3 -> 2, bit4 -> 0, bit5 -> 1
 
 		# print("Dsts : "+str(dsts_change))
 
