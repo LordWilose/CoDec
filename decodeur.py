@@ -138,7 +138,7 @@ def morseToAscii(morse_words):
 
 	return words
 
-def decodeMorse(morse_words):
+def decodeMorse(morse_words, verbose=False):
 	new_morse_words = []
 
 	for word in morse_words:
@@ -151,11 +151,19 @@ def decodeMorse(morse_words):
 		# 4 Idem pour y
 		# 5 Idem pour z
 
-		bit1, bit2, bit3, bit4, bit5 = new_word[0], new_word[1], new_word[2], new_word[3], new_word[4]
-		# print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, 0]))
+		bit1, bit2, bit3, bit4, bit5, bit6 = new_word[0], new_word[1], new_word[2], new_word[3], new_word[4], new_word[5]
+
+		if verbose:
+			print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, bit6]))
+
+		if bit6 != "0": # Factorisation du mot
+			fact = int(len(new_word)/(int(bit6)+1))
+			new_word = new_word[:fact]
 
 		new_word = new_word[6:] # Padding 6 bits
-		# print("Start : "+new_word)
+
+		if verbose:
+			print("Start : "+str(len(new_word))+" "+new_word)
 
 		# Récupération du décalage
 		if bit2 == "0":
@@ -169,17 +177,19 @@ def decodeMorse(morse_words):
 			new_word = lastChar+new_word
 			new_word = new_word[:-1]
 
-		# print("Decalage : "+new_word)
+		if verbose:
+			print("Decalage : "+new_word)
 
 		# Récupération de l'échange de valeurs
 		if bit1 == "0":
-			dsts_change = [bit3, bit4, bit5] # bit3 -> 0, bit4 -> 1, bit5 -> 2
+			dsts_change = [bit3, bit4, bit5]
 		elif bit1 == "1":
-			dsts_change = [bit5, bit3, bit4] # bit3 -> 1, bit4 -> 2, bit5 -> 0
+			dsts_change = [bit5, bit3, bit4]
 		else: # 2
-			dsts_change = [bit4, bit5, bit3] # bit3 -> 2, bit4 -> 0, bit5 -> 1
+			dsts_change = [bit4, bit5, bit3]
 
-		# print("Dsts : "+str(dsts_change))
+		if verbose:
+			print("Dsts : "+str(dsts_change))
 
 		tmp = ""
 		for char in new_word:
@@ -191,7 +201,8 @@ def decodeMorse(morse_words):
 				tmp += str(dsts_change.index(bit5))
 		new_word = tmp
 
-		# print("Change : "+new_word+"\n\n")
+		if verbose:
+			print("Change : "+new_word+"\n\n")
 
 		new_morse_words.append(new_word)
 
@@ -201,53 +212,63 @@ def decodeMorse(morse_words):
 # Récupération du texte crypté
 
 text = input("Texte à décoder\n: ")
+beVerbose = input("Bavard ? (y/N) : ")
+if beVerbose in ("y", "Y", "yes", "Yes", "YES", "ye", "Ye", "YE"):
+	beVerbose = True
+else:
+	beVerbose = False
 
 words = getCrypted(text)
 
-for word in words:
-	print(str(len(word))+" "+word)	
-print("\n")
+if beVerbose:
+	for word in words:
+		print(str(len(word))+" "+word)	
+	print("\n")
 
 # Conversion ascii -> hexadécimal
 
 hexa_words = cryptedToHexa(words)
 
-for word in hexa_words:
-	print(str(len(word))+" "+word)	
-print("\n")
+if beVerbose:
+	for word in hexa_words:
+		print(str(len(word))+" "+word)	
+	print("\n")
 
 # Conversion hexadécimal -> binaire
 
 bin_words = hexaToBin(hexa_words)
 
-for word in bin_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in bin_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Conversion binaire -> morse
 
 morse_words = binToMorse(bin_words)
 
-for word in morse_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in morse_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
-new_morse_words = decodeMorse(morse_words)
+new_morse_words = decodeMorse(morse_words, beVerbose)
 
-
-for word in new_morse_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in new_morse_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Conversion morse -> texte
 
 words = morseToAscii(new_morse_words)
 
-for word in words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Compilation de la sortie
 
-print("################# SORTIE #################\n")
+print("\n\n################# SORTIE #################\n")
 print(" ".join(words))

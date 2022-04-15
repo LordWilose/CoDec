@@ -7,7 +7,7 @@
 #																			  #
 ############################################################################### 
 
-from random import randrange
+from random import randrange, choice
 
 ################################### CST #####################################
 # Table morse
@@ -134,7 +134,7 @@ def hexToAscii(hex_words):
 
 	return ascii_words
 
-def cryptIt(raw):
+def cryptIt(raw, verbose=False):
 	new_morse_words = []
 
 	for word in raw:
@@ -145,13 +145,14 @@ def cryptIt(raw):
 		# 3 Détermine la cible de l'échange x du 1er bit
 		# 4 Idem pour y
 		# 5 Idem pour z
+		# 6 X*len(mot) -> padding de taille, mot = x premiers bits
 
 		bit1 = randrange(0,3) # 0, 1, 2
 		bit2 = randrange(0,3)
 		bit3 = randrange(0,3)
 		bit4 = randrange(0,3)
 		bit5 = randrange(0,3)
-		bit6 = 0 # Padding (%6)
+		bit6 = randrange(0,3)
 
 		while bit3 == bit4 or bit3 == bit5 or bit4 == bit5:
 			# Evite la redondance dans l'échange de valeurs
@@ -159,25 +160,28 @@ def cryptIt(raw):
 			bit4 = randrange(0,3)
 			bit5 = randrange(0,3)
 
-		# print("Start : "+word)
-		# print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, bit6]))
+		if verbose:
+			print("Start : "+word)
+			print("Bits: "+str([bit1, bit2, bit3, bit4, bit5, bit6]))
 
-		if bit1 == 0:
+		if bit1 == 0: # Destinations de la fonction d'échange de valeurs
 			dsts_change = [bit3, bit4, bit5]
 		elif bit1 == 1:
 			dsts_change = [bit5, bit3, bit4]
 		else: # 2
 			dsts_change = [bit4, bit5, bit3]
 
-		# print("Dsts : "+str(dsts_change))
+		if verbose:
+			print("Dsts : "+str(dsts_change))
 
-		new_word = ""
+		new_word = "" # Execution de l'echange
 		for char in word:
 			new_word += str(dsts_change[int(char)])
 
-		# print("Change : "+new_word)
+		if verbose:
+			print("Change : "+new_word)
 
-		if bit2 == 0:
+		if bit2 == 0: # Remise à niveau du décalage modulo
 			pass
 		elif bit2 == 1:
 			lastChar = new_word[len(new_word)-1]
@@ -188,37 +192,68 @@ def cryptIt(raw):
 			new_word = new_word+firstChar
 			new_word = new_word[1:]
 
-		# print("Decalage : "+new_word+"\n\n")
+		if verbose:
+			print("Decalage : "+new_word)
 
-		new_word = str(bit1)+str(bit2)+str(bit3)+str(bit4)+str(bit5)+str(bit6)+new_word
+		tmp = [] # Ajout de factorisation du mot 
+		for x in range(bit6):
+			l = 0
+			tmp_tmp = ""
+
+			while l < len(new_word)+6:
+				tmp_tmp += choice(["0", "1", "2"])
+				l += 1
+
+			tmp.append(tmp_tmp)
+
+		padding = "".join(tmp)
+
+		if verbose:
+			print("Padding : "+padding+"\n")
+
+		new_word = str(bit1)+str(bit2)+str(bit3)+str(bit4)+str(bit5)+str(bit6)+new_word+padding
+
+		if verbose:
+			print("Final : "+new_word+"\n\n")
+		
 		new_morse_words.append(new_word)
 
-	return new_morse_words, [bit1, bit2, bit3, bit4, bit5, bit6]#, bit7, bit8]
+	return new_morse_words, [bit1, bit2, bit3, bit4, bit5, bit6]
 
 
 ################################### MAIN ####################################
 # Récupération de l'entrée et découpage en séquence de mot
 
 text = input("Texte à encoder\n/!\\ Peu de caractères spéciaux sont pris en charge /!\\\n: ") + " "
+
+beVerbose = input("Bavard ? (y/N) : ")
+if beVerbose in ("y", "Y", "yes", "Yes", "YES", "ye", "Ye", "YE"):
+	beVerbose = True
+else:
+	beVerbose = False
+
 words = splitAndConvert(text)
 
-for word in words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Conversion en morse
 
 morse_words = strToMorse(words)
 
-for word in morse_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in morse_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
-morse_words, encryptionBits = cryptIt(morse_words)
+morse_words, encryptionBits = cryptIt(morse_words, beVerbose)
 
-for word in morse_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in morse_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Conversion en binaire sur 1 octet (4*2bits 5*2 si n° avec)
 #	00 = pas de signal
@@ -227,16 +262,19 @@ print("\n")
 
 bin_words = morseToBin(morse_words)
 
-for word in bin_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in bin_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Conversion en hexadecimal par octet (de morse binaire)
 
 hex_words = binToHexa(bin_words)
-for word in hex_words:
-	print(str(len(word))+" "+word)
-print("\n")
+
+if beVerbose:
+	for word in hex_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 
 # Traduction dans la table ascii
@@ -244,9 +282,10 @@ print("\n")
 
 ascii_words = hexToAscii(hex_words)
 
-for word in ascii_words:
-	print(str(len(word))+" "+word)
-print("\n")
+if beVerbose:
+	for word in ascii_words:
+		print(str(len(word))+" "+word)
+	print("\n")
 
 # Compilation de la sortie
 print("################# SORTIE #################\n")
